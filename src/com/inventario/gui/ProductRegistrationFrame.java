@@ -1,8 +1,6 @@
-package com.inventario.Gui;
+package com.inventario.gui;
 
 import javax.swing.*;
-import java.awt.*;
-import com.inventario.model.*;
 
 public class ProductRegistrationFrame extends JFrame {
     // Declara los componentes de la UI

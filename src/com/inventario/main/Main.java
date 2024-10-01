@@ -1,6 +1,6 @@
 package com.inventario.main;
 
-import com.inventario.Gui.ProductRegistrationFrame;
+import com.inventario.gui.ProductRegistrationFrame;
 import javax.swing.SwingUtilities;
 
 public class Main {
