@@ -4,18 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import com.inventario.model.ProductTableModel;
+import com.inventario.model.*;
 
 public class ProductRegistrationFrame extends JFrame {
-    private JTextField nameField;
-    private JTextField priceField;
-    private JTextField quantityField;
+    private JTextField nameField, priceField, quantityField;
     private JButton saveButton;
+    private JTable productTable;
     private ProductTableModel productTableModel;
 
     public ProductRegistrationFrame() {
-        this.productTableModel = productTableModel;
         setTitle("Registro de Productos");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,66 +22,55 @@ public class ProductRegistrationFrame extends JFrame {
     }
 
     private void initComponents() {
-        // Set layout
-        setLayout(new GridLayout(4, 2, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(5, 2));
 
-        // Create components
-        JLabel nameLabel = new JLabel("Nombre del Producto:");
+        panel.add(new JLabel("Nombre:"));
         nameField = new JTextField();
+        panel.add(nameField);
 
-        JLabel priceLabel = new JLabel("Precio:");
+        panel.add(new JLabel("Precio:"));
         priceField = new JTextField();
+        panel.add(priceField);
 
-        JLabel quantityLabel = new JLabel("Cantidad:");
+        panel.add(new JLabel("Cantidad:"));
         quantityField = new JTextField();
+        panel.add(quantityField);
 
         saveButton = new JButton("Guardar");
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveProduct();
-            }
-        });
+        saveButton.addActionListener(new SaveProductAction());
+        panel.add(saveButton);
 
-        add(nameLabel);
-        add(nameField);
-        add(priceLabel);
-        add(priceField);
-        add(quantityLabel);
-        add(quantityField);
-        add(new JLabel());
-        add(saveButton);
+        add(panel, BorderLayout.NORTH);
+
+        productTableModel = new ProductTableModel();
+        productTable = new JTable(productTableModel);
+        add(new JScrollPane(productTable), BorderLayout.CENTER);
     }
 
-    private void saveProduct() {
-        String name = nameField.getText();
-        String priceText = priceField.getText();
-        String quantityText = quantityField.getText();
+    private class SaveProductAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                String name = nameField.getText();
+                double price = Double.parseDouble(priceField.getText());
+                int quantity = Integer.parseInt(quantityField.getText());
 
-        // Basic validation
-        if (name.isEmpty() || priceText.isEmpty() || quantityText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor complete todos los campos.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+                if (name.isEmpty()) {
+                    throw new IllegalArgumentException("El nombre no puede estar vacío.");
+                }
+
+                int id = productTableModel.getRowCount() + 1; // Simple ID generation
+                Product product = new Product(id, name, price, quantity);
+                productTableModel.addProduct(product);
+
+                nameField.setText("");
+                priceField.setText("");
+                quantityField.setText("");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(ProductRegistrationFrame.this, "Por favor, ingresa un precio o una cantidad valida.");
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(ProductRegistrationFrame.this, ex.getMessage());
+            }
         }
-
-        double price;
-        int quantity;
-
-        try {
-            price = Double.parseDouble(priceText);
-            quantity = Integer.parseInt(quantityText);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Por favor ingrese valores válidos para precio y cantidad.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-
-
-        JOptionPane.showMessageDialog(this, "Producto guardado exitosamente!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-
-        nameField.setText("");
-        priceField.setText("");
-        quantityField.setText("");
     }
 }
